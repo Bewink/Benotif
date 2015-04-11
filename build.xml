@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project basedir="." name="Benotif">
+
+    <target name="package">
+        <echo>Making package...</echo>
+        <tar  destfile="site.tar.gz" compression="gzip">
+            <tarfileset dir="${basedir}/out">
+                <include name="**/*"/>
+                <exclude name="**/.git" />
+                <exclude name="**/.git/**" />
+                <exclude name="site.tar.gz" />
+            </tarfileset>
+        </tar>
+    </target>
+
+    <target name="upload-preprod">
+        <echo>Uploading...</echo>
+        <scp file="site.tar.gz" todir="root@bew.ink:/var/www/lycampire/benotif" password="${password}" verbose="true"  sftp="true" trust="true"/>
+    </target>
+
+    <target name="remove-package">
+        <echo>Remove package...</echo>
+        <delete file="site.tar.gz"/>
+    </target>
+
+    <target name="unpack-preprod">
+        <echo>Unpack...</echo>
+        <sshexec host="bew.ink" username="root" password="${password}" verbose="true" trust="true" command="tar -zxvf /var/www/lycampire/benotif/site.tar.gz -C /var/www/lycampire/benotif/"/>
+    </target>
+
+    <target name="deploy-preprod" depends="package,upload-preprod,remove-package,unpack-preprod" />
+
+    <target name="deploy-prod">
+        <echo>Uploading...</echo>
+        <scp file="out/js/release/benotif.js" todir="root@bew.ink:/var/www/public/js/lycampire" password="${password}" verbose="true"  sftp="true" trust="true"/>
+    </target>
+</project>
